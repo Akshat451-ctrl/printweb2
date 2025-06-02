@@ -1,0 +1,204 @@
+
+**Overview**:  
+PQM (Printing Queue Management System) is a web-based application designed to streamline the process of managing print orders for students and vendors. The system allows students to place print orders, track their status, and securely receive their printed documents. Vendors can manage incoming orders, download files, and update the status of print jobs.
+
+---
+
+### **Features**
+
+#### **Student Side**:
+1. **Order Placement**:
+   - Students can place print orders by specifying:
+     - Single-sided or double-sided printing.
+     - Uploading the PDF file they want to print.
+   - The system calculates the payment based on the order details.
+   - A payment page is displayed for completing the transaction.
+
+2. **Order Tracking**:
+   - Students can track the status of their orders with the following stages:
+     - **Placed**: Order has been placed successfully.
+     - **OrderAcceptedByVendor**: Vendor has accepted the order.
+     - **OrderPrinted**: The order has been printed.
+     - **Delivered**: The order has been delivered.
+
+3. **Secure Delivery**:
+   - An OTP (One-Time Password) is generated for secure delivery of the printed documents.
+   - Each order is assigned a unique Order ID for identification.
+
+---
+
+#### **Vendor Side**:
+1. **Live Order Management**:
+   - Vendors receive live notifications of new orders.
+   - Vendors can accept or reject incoming order requests.
+
+2. **File Download**:
+   - Once an order is accepted, vendors can download the PDF file from the server.
+
+3. **Order Status Updates**:
+   - Vendors can update the order status by clicking buttons for:
+     - **Print Completed**: Notify the server that the print job is done.
+     - **Delivered**: Mark the order as delivered.
+
+---
+
+### **Tech Stack**
+- **Frontend**: React.js (or any other framework you plan to use).
+- **Backend**: Node.js with Express.js.
+- **Database**: MongoDB for storing user, order, and vendor data.
+- **Authentication**: JWT (JSON Web Tokens) for secure user and vendor authentication.
+- **File Uploads**: Multer or similar library for handling PDF uploads.
+- **Payment Integration**: Payment gateway for processing payments.
+
+---
+
+### **Folder Structure**
+- **Backend_Files**:
+  - `index.js`: Entry point for the backend server.
+  - `src/`:
+    - `models/`: Contains Mongoose schemas for `User`, `Order`, etc.
+    - `routes/`: Defines API routes for students and vendors.
+    - `controllers/`: Contains business logic for handling requests.
+    - `db/`: Database connection logic.
+    - `middleware/`: Middleware for authentication and validation.
+
+
+
+### **1. User Model**
+This model will store information about students who place print orders.
+
+```javascript
+const mongoose = require('mongoose');
+
+const userSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true,
+        trim: true,
+    },
+    password: {
+        type: String,
+        required: true,
+        minlength: 6,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+});
+
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;
+```
+
+---
+
+### **2. Order Model**
+This model will store information about print orders placed by students.
+
+```javascript
+const mongoose = require('mongoose');
+
+const orderSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
+    pdfFile: {
+        type: String, // Path or URL to the uploaded PDF file
+        required: true,
+    },
+    printType: {
+        type: String,
+        enum: ['single-sided', 'double-sided'],
+        required: true,
+    },
+    paymentStatus: {
+        type: String,
+        enum: ['pending', 'completed'],
+        default: 'pending',
+    },
+    orderStatus: {
+        type: String,
+        enum: ['placed', 'orderAcceptedByVendor', 'orderPrinted', 'delivered'],
+        default: 'placed',
+    },
+    otp: {
+        type: String, // OTP for secure delivery
+        required: true,
+    },
+    orderId: {
+        type: String, // Unique identifier for the order
+        required: true,
+        unique: true,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+});
+
+const Order = mongoose.model('Order', orderSchema);
+
+module.exports = Order;
+```
+
+---
+
+### **3. Vendor Model**
+This model will store information about vendors who manage print orders.
+
+```javascript
+const mongoose = require('mongoose');
+
+const vendorSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true,
+        trim: true,
+    },
+    password: {
+        type: String,
+        required: true,
+        minlength: 6,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+});
+
+const Vendor = mongoose.model('Vendor', vendorSchema);
+
+module.exports = Vendor;
+```
+
+---
+
+### **Relationships Between Models**
+- **User ↔ Order**: Each order is associated with a user (`userId` field in the `Order` model).
+- **Vendor ↔ Order**: Vendors manage orders, but you can add a `vendorId` field in the `Order` model if you want to track which vendor handled the order.
+
+---
+
+### **Additional Notes**
+- **PDF File Storage**: Use a library like `Multer` for handling file uploads and store the file path in the `pdfFile` field of the `Order` model.
+- **OTP Generation**: Use a library like `crypto` or `uuid` to generate secure OTPs for order delivery.
+- **Order ID**: Use a unique identifier (e.g., `uuid`) for the `orderId` field in the `Order` model.
+

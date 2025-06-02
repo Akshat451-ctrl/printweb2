@@ -1,0 +1,62 @@
+/* Wet Paint Button */
+.wet-paint-button {
+  background: linear-gradient(45deg, #ff6b6b, #f06595, #845ef7);
+  background-size: 200% 200%;
+  animation: wet-paint-gradient 3s ease infinite;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  cursor: pointer;
+}
+
+.wet-paint-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 70%);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.5s ease;
+  pointer-events: none;
+}
+
+.wet-paint-button:hover::before {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.wet-paint-button:active::before {
+  transform: translate(-50%, -50%) scale(0.8);
+}
+
+@keyframes wet-paint-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Gradient Animation */
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  background: linear-gradient(45deg, #ff6b6b, #f06595, #845ef7, #5c7cfa, #22b8cf);
+  background-size: 300% 300%;
+  animation: gradient 8s ease infinite;
+}
